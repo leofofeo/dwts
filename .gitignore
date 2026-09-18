@@ -1,6 +1,8 @@
 # Database
 *.db
 *.db-journal
+*.db-shm
+*.db-wal
 
 # Python
 __pycache__/
