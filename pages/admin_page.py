@@ -6,14 +6,17 @@ from database import (
     update_player_team_name,
     add_player_pick,
     get_player_picks,
-    eliminate_team
+    eliminate_team,
+    add_player,
+    delete_player
 )
 
 
 def render():
     """Render the admin page."""
 
-    tab1, tab2, tab3, tab4 = st.tabs([
+    tab1, tab2, tab3, tab4, tab5 = st.tabs([
+        "Manage Players",
         "Manage DWTS Teams",
         "Assign Teams to Players",
         "Update Player Team Names",
@@ -21,6 +24,58 @@ def render():
     ])
 
     with tab1:
+        st.subheader("Add New Player")
+
+        with st.form("add_player"):
+            player_name = st.text_input("Player Name*", placeholder="e.g., Becca")
+            team_name = st.text_input("Team Name (optional)", placeholder="e.g., Team Becca")
+
+            submitted = st.form_submit_button("Add Player")
+
+            if submitted:
+                if not player_name:
+                    st.error("Please enter a player name")
+                else:
+                    try:
+                        add_player(player_name, team_name)
+                        st.success(f"Added player {player_name}!")
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"Error adding player: {e}")
+
+        st.divider()
+        st.subheader("Existing Players")
+
+        players = get_all_players()
+        if players:
+            for player in players:
+                col1, col2, col3, col4 = st.columns([2, 2, 1, 1])
+
+                with col1:
+                    st.write(f"**{player['name']}**")
+
+                with col2:
+                    team_display = player['team_name'] if player['team_name'] else "(no team name)"
+                    st.caption(f"Team: {team_display}")
+
+                with col3:
+                    picks = get_player_picks(player['id'])
+                    st.caption(f"{len(picks)} picks")
+
+                with col4:
+                    if st.button("Delete", key=f"delete_player_{player['id']}"):
+                        try:
+                            delete_player(player['id'])
+                            st.success(f"Deleted {player['name']}")
+                            st.rerun()
+                        except Exception as e:
+                            st.error(f"Error: {e}")
+
+                st.divider()
+        else:
+            st.info("No players yet. Add one above!")
+
+    with tab2:
         st.subheader("Add DWTS Contestant Team")
 
         with st.form("add_dwts_team"):
@@ -65,7 +120,7 @@ def render():
         else:
             st.info("No DWTS teams added yet.")
 
-    with tab2:
+    with tab3:
         st.subheader("Assign DWTS Teams to Players")
 
         players = get_all_players()
@@ -135,7 +190,7 @@ def render():
                             except Exception as e:
                                 st.error(f"Error: {e}")
 
-    with tab3:
+    with tab4:
         st.subheader("Update Player Team Names")
         st.caption("Give each player a fun team name that will be displayed on the leaderboard")
 
@@ -159,7 +214,7 @@ def render():
                     except Exception as e:
                         st.error(f"Error: {e}")
 
-    with tab4:
+    with tab5:
         st.subheader("Eliminate Teams")
         st.caption("Mark teams as eliminated when they're voted off")
 

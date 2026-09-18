@@ -81,19 +81,24 @@ def init_db():
     """))
     conn.commit()
 
-    # Insert the 4 players if they don't exist
-    players = [
-        ('Leo', ''),
-        ('Abby', ''),
-        ('Taylor', ''),
-        ('Turner', '')
-    ]
+    # Insert default players only if no players exist yet
+    result = conn.execute(text("SELECT COUNT(*) as count FROM players"))
+    player_count = result.fetchone()[0]
 
-    for name, team_name in players:
-        conn.execute(text("""
-            INSERT OR IGNORE INTO players (name, team_name)
-            VALUES (:name, :team_name)
-        """), {"name": name, "team_name": team_name})
+    if player_count == 0:
+        # Add initial players
+        default_players = [
+            ('Leo', ''),
+            ('Abby', ''),
+            ('Taylor', ''),
+            ('Turner', '')
+        ]
+
+        for name, team_name in default_players:
+            conn.execute(text("""
+                INSERT INTO players (name, team_name)
+                VALUES (:name, :team_name)
+            """), {"name": name, "team_name": team_name})
 
     conn.commit()
     conn.close()
@@ -292,3 +297,31 @@ def get_latest_week() -> int:
     max_week = result.fetchone()[0]
     conn.close()
     return max_week
+
+
+def add_player(name: str, team_name: str = ""):
+    """Add a new player."""
+    conn = get_connection()
+    result = conn.execute(text("""
+        INSERT INTO players (name, team_name)
+        VALUES (:name, :team_name)
+    """), {"name": name, "team_name": team_name})
+    player_id = result.lastrowid
+    conn.commit()
+    conn.close()
+    return player_id
+
+
+def delete_player(player_id: int):
+    """Delete a player and all their picks."""
+    conn = get_connection()
+    # Delete player picks first (foreign key constraint)
+    conn.execute(text("""
+        DELETE FROM player_picks WHERE player_id = :player_id
+    """), {"player_id": player_id})
+    # Delete the player
+    conn.execute(text("""
+        DELETE FROM players WHERE id = :player_id
+    """), {"player_id": player_id})
+    conn.commit()
+    conn.close()
