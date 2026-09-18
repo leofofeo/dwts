@@ -75,26 +75,38 @@ Players are automatically marked as eliminated when all their teams are gone.
 
 ## Deployment
 
-### Streamlit Community Cloud (Recommended)
+The app uses **persistent database storage** that works seamlessly in both local development and production:
 
-1. Push this repository to GitHub
-2. Go to [share.streamlit.io](https://share.streamlit.io)
-3. Click "New app"
-4. Connect your GitHub repository
-5. Set main file path to: `main.py`
-6. Deploy!
+- **Local Development**: Automatically uses SQLite (`dwts.db` file)
+- **Production**: Uses Turso (free serverless SQLite) for permanent data persistence
 
-Streamlit Cloud will automatically:
-- Detect `pyproject.toml` and install dependencies
-- Create and persist the SQLite database
-- Provide a free public URL
+### Quick Deploy to Streamlit Cloud
 
-### Other Options
+1. **Set up Turso database** (5 minutes, free):
+   - Sign up at [turso.tech](https://turso.tech)
+   - Create a database and get your DATABASE_URL
+   - See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions
 
-- **Render**: Free tier available, supports Python apps
-- **Fly.io**: Free tier with minimal setup
+2. **Deploy to Streamlit Cloud**:
+   - Push this repo to GitHub
+   - Go to [share.streamlit.io](https://share.streamlit.io)
+   - Click "New app" and connect your repo
+   - Set main file path: `main.py`
+   - In Advanced Settings → Secrets, add:
+     ```toml
+     DATABASE_URL = "libsql://your-database.turso.io?authToken=your-token"
+     ```
+   - Click "Deploy"
 
-**Note**: The app uses SQLite, so the database file will persist on the server's filesystem. For Streamlit Cloud, the database persists across deploys.
+3. **Done!** Your data persists permanently across all deploys.
+
+### Full Deployment Guide
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for:
+- Complete Turso setup instructions
+- Alternative database options (PostgreSQL, Neon, Supabase)
+- Troubleshooting
+- Backup/restore procedures
 
 ## Future Enhancement Ideas
 

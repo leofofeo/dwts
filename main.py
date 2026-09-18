@@ -126,8 +126,8 @@ elif page == "Admin":
         st.session_state.authenticated = False
 
     if not st.session_state.authenticated:
-        password = st.text_input("Enter admin password", type="password")
-        if st.button("Login"):
+        password = st.text_input("Enter admin password", type="password", key="admin_password")
+        if st.button("Login", key="admin_login"):
             if password == "dwts2024":  # You can change this password
                 st.session_state.authenticated = True
                 st.rerun()
@@ -136,7 +136,7 @@ elif page == "Admin":
     else:
         st.success("Authenticated")
 
-        if st.button("Logout"):
+        if st.button("Logout", key="admin_logout"):
             st.session_state.authenticated = False
             st.rerun()
 
@@ -152,8 +152,8 @@ elif page == "Scoring":
         st.session_state.authenticated_scoring = False
 
     if not st.session_state.authenticated_scoring:
-        password = st.text_input("Enter admin password", type="password")
-        if st.button("Login"):
+        password = st.text_input("Enter admin password", type="password", key="scoring_password")
+        if st.button("Login", key="scoring_login"):
             if password == "dwts2024":  # Same password as admin
                 st.session_state.authenticated_scoring = True
                 st.rerun()
@@ -162,7 +162,7 @@ elif page == "Scoring":
     else:
         st.success("Authenticated")
 
-        if st.button("Logout"):
+        if st.button("Logout", key="scoring_logout"):
             st.session_state.authenticated_scoring = False
             st.rerun()
 
