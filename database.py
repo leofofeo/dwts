@@ -5,14 +5,17 @@ from pathlib import Path
 
 def get_connection():
     """Get a database connection using Streamlit's connection system."""
-    # Try to get DATABASE_URL from Streamlit secrets
+    # Try to get Turso credentials from Streamlit secrets
     try:
-        if hasattr(st, 'secrets') and 'DATABASE_URL' in st.secrets:
-            # Production: Use the database URL from secrets
-            database_url = st.secrets['DATABASE_URL']
-            engine = create_engine(database_url)
+        if hasattr(st, 'secrets') and 'TURBO_URL' in st.secrets and 'TURBO_TOKEN' in st.secrets:
+            # Production: Use Turso database
+            turso_url = st.secrets['TURBO_URL']
+            turso_token = st.secrets['TURBO_TOKEN']
+            # Construct the database URL with auth token as query parameter
+            database_url = f"{turso_url}?authToken={turso_token}"
+            engine = create_engine(database_url, connect_args={'check_same_thread': False}, echo=False)
             return engine.connect()
-    except Exception:
+    except Exception as e:
         # If secrets access fails or doesn't exist, fall through to SQLite
         pass
 
