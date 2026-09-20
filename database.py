@@ -13,9 +13,14 @@ def get_connection():
             turso_token = st.secrets['TURBO_TOKEN']
             # Convert libsql:// to sqlite+libsql:// for SQLAlchemy
             database_url = turso_url.replace('libsql://', 'sqlite+libsql://')
-            # Add authToken as query parameter (don't URL encode it)
-            database_url = f"{database_url}?authToken={turso_token}&secure=true"
-            engine = create_engine(database_url, connect_args={'check_same_thread': False}, echo=False)
+            # Add secure=true to use HTTPS/WSS
+            database_url = f"{database_url}?secure=true"
+            # Pass auth_token in connect_args (not in URL)
+            engine = create_engine(
+                database_url,
+                connect_args={'check_same_thread': False, 'auth_token': turso_token},
+                echo=False
+            )
             conn = engine.connect()
             print("✅ Connected to Turso database")
             return conn
