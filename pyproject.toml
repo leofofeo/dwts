@@ -6,4 +6,5 @@ requires-python = ">=3.13"
 dependencies = [
     "streamlit>=1.64.0",
     "sqlalchemy>=2.0.0",
+    "sqlalchemy-libsql>=0.1.0",
 ]

@@ -11,18 +11,24 @@ def get_connection():
             # Production: Use Turso database
             turso_url = st.secrets['TURBO_URL']
             turso_token = st.secrets['TURBO_TOKEN']
-            # Construct the database URL with auth token as query parameter
-            database_url = f"{turso_url}?authToken={turso_token}"
+            # Convert libsql:// to sqlite+libsql:// for SQLAlchemy
+            database_url = turso_url.replace('libsql://', 'sqlite+libsql://')
+            # Add authToken as query parameter (don't URL encode it)
+            database_url = f"{database_url}?authToken={turso_token}&secure=true"
             engine = create_engine(database_url, connect_args={'check_same_thread': False}, echo=False)
-            return engine.connect()
+            conn = engine.connect()
+            print("✅ Connected to Turso database")
+            return conn
     except Exception as e:
         # If secrets access fails or doesn't exist, fall through to SQLite
-        pass
+        print(f"⚠️ Failed to connect to Turso: {e}")
+        print("Falling back to local SQLite")
 
     # Local development: Use SQLite file
     db_path = Path(__file__).parent / "dwts.db"
     database_url = f"sqlite:///{db_path}"
     engine = create_engine(database_url)
+    print(f"📁 Using local SQLite: {db_path}")
     return engine.connect()
 
 
