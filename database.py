@@ -130,16 +130,32 @@ def get_player_picks(player_id: int) -> List[Dict]:
         return [t for t in teams if t['id'] in team_ids]
 
 
+def _normalize_judge_name(name: str) -> str:
+    """Normalize judge name to canonical form."""
+    name = name.strip()
+    # Common variations and corrections
+    corrections = {
+        'Carri-Ann': 'Carrie-Ann',
+        'Carrie Ann': 'Carrie-Ann',
+        'CarrieAnn': 'Carrie-Ann',
+    }
+    return corrections.get(name, name)
+
+
 def add_weekly_score(dwts_team_id: int, week_number: int, judge_name: str, score: int):
     """Add or update a weekly score."""
     with _lock:
         scores = _load_json('weekly_scores.json')
 
+        # Normalize judge name (trim whitespace, apply corrections)
+        judge_name = _normalize_judge_name(judge_name)
+
         # Remove existing score for this team/week/judge (INSERT OR REPLACE)
+        # Compare normalized versions to catch spelling variations
         scores = [s for s in scores if not (
             s['dwts_team_id'] == dwts_team_id and
             s['week_number'] == week_number and
-            s['judge_name'] == judge_name
+            _normalize_judge_name(s['judge_name']) == judge_name
         )]
 
         score_id = _get_next_id(scores)

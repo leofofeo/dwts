@@ -35,13 +35,18 @@ def render():
     st.subheader("Judge Configuration")
     num_judges = st.number_input("Number of Judges", min_value=1, max_value=10, value=3, step=1)
 
+    # Default judge names
+    default_judges = ["Carrie-Ann", "Derek", "Bruno"]
+
     judge_names = []
     cols = st.columns(min(num_judges, 4))  # Max 4 columns
     for i in range(num_judges):
         with cols[i % 4]:
+            # Use default judge name if available, otherwise "Judge N"
+            default_name = default_judges[i] if i < len(default_judges) else f"Judge {i+1}"
             judge_name = st.text_input(
                 f"Judge {i+1} Name",
-                value=f"Judge {i+1}",
+                value=default_name,
                 key=f"judge_{i}"
             )
             judge_names.append(judge_name)

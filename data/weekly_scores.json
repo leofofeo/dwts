@@ -1,17 +1,9 @@
 [
   {
-    "id": 1,
-    "dwts_team_id": 3,
-    "week_number": 2,
-    "judge_name": "Carrie-Ann",
-    "score": 7,
-    "created_at": "2026-09-23 00:22:12"
-  },
-  {
     "id": 4,
     "dwts_team_id": 2,
     "week_number": 2,
-    "judge_name": "Carri-Ann",
+    "judge_name": "Carrie-Ann",
     "score": 4,
     "created_at": "2026-09-22T19:55:12.290550"
   },
@@ -35,7 +27,7 @@
     "id": 7,
     "dwts_team_id": 3,
     "week_number": 2,
-    "judge_name": "Carri-Ann",
+    "judge_name": "Carrie-Ann",
     "score": 7,
     "created_at": "2026-09-22T19:55:23.423766"
   },
@@ -59,7 +51,7 @@
     "id": 10,
     "dwts_team_id": 6,
     "week_number": 2,
-    "judge_name": "Carri-Ann",
+    "judge_name": "Carrie-Ann",
     "score": 6,
     "created_at": "2026-09-22T19:55:49.057693"
   },
@@ -83,7 +75,7 @@
     "id": 13,
     "dwts_team_id": 13,
     "week_number": 2,
-    "judge_name": "Carri-Ann",
+    "judge_name": "Carrie-Ann",
     "score": 5,
     "created_at": "2026-09-22T19:56:09.661804"
   },
@@ -107,7 +99,7 @@
     "id": 16,
     "dwts_team_id": 11,
     "week_number": 2,
-    "judge_name": "Carri-Ann",
+    "judge_name": "Carrie-Ann",
     "score": 6,
     "created_at": "2026-09-22T19:56:18.012590"
   },
@@ -131,7 +123,7 @@
     "id": 19,
     "dwts_team_id": 8,
     "week_number": 2,
-    "judge_name": "Carri-Ann",
+    "judge_name": "Carrie-Ann",
     "score": 6,
     "created_at": "2026-09-22T19:56:33.955780"
   },
@@ -155,7 +147,7 @@
     "id": 22,
     "dwts_team_id": 7,
     "week_number": 2,
-    "judge_name": "Carri-Ann",
+    "judge_name": "Carrie-Ann",
     "score": 5,
     "created_at": "2026-09-22T19:56:48.226257"
   },
