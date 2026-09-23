@@ -19,15 +19,25 @@ def render():
         st.warning("No active teams available. All teams have been eliminated or none have been added yet.")
         return
 
-    # Week selection
+    # Week selection with session state to remember last selected week
     latest_week = get_latest_week()
+
+    # Initialize session state for week number if not exists
+    if 'selected_week' not in st.session_state:
+        st.session_state.selected_week = latest_week if latest_week > 0 else 1
+
     week_number = st.number_input(
         "Week Number",
         min_value=1,
-        value=latest_week + 1 if latest_week > 0 else 1,
+        value=st.session_state.selected_week,
         step=1,
-        help="Enter the week number for these scores"
+        help="Enter the week number for these scores",
+        key="week_input"
     )
+
+    # Update session state when week changes
+    if week_number != st.session_state.selected_week:
+        st.session_state.selected_week = week_number
 
     st.divider()
 
