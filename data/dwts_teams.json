@@ -13,8 +13,8 @@
     "contestant_name": "Giada De Laurentiis",
     "partner_name": "Alan Bersten",
     "division": "womens",
-    "is_eliminated": false,
-    "elimination_week": null,
+    "is_eliminated": true,
+    "elimination_week": 2,
     "created_at": "2026-09-20 17:12:47"
   },
   {
