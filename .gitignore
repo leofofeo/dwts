@@ -1,8 +1,11 @@
-# Database
+# Database (old SQLite files - no longer used)
 *.db
 *.db-journal
 *.db-shm
 *.db-wal
+
+# Data files (JSON) - INCLUDE these in git!
+# data/*.json should be tracked
 
 # Python
 __pycache__/

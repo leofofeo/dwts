@@ -1,341 +1,298 @@
-import streamlit as st
-from sqlalchemy import create_engine, text
+import json
 from pathlib import Path
+from datetime import datetime
+from typing import List, Dict, Optional
+import threading
+
+# Thread lock for file operations to prevent race conditions
+_lock = threading.Lock()
+
+# Data directory
+DATA_DIR = Path(__file__).parent / "data"
 
 
-def get_connection():
-    """Get a database connection using Streamlit's connection system."""
-    # Try to get Turso credentials from Streamlit secrets
-    try:
-        if hasattr(st, 'secrets') and 'TURBO_URL' in st.secrets and 'TURBO_TOKEN' in st.secrets:
-            # Production: Use Turso database
-            turso_url = st.secrets['TURBO_URL']
-            turso_token = st.secrets['TURBO_TOKEN']
-            # Convert libsql:// to sqlite+libsql:// for SQLAlchemy
-            database_url = turso_url.replace('libsql://', 'sqlite+libsql://')
-            # Add secure=true to use HTTPS/WSS
-            database_url = f"{database_url}?secure=true"
-            # Pass auth_token in connect_args (not in URL)
-            engine = create_engine(
-                database_url,
-                connect_args={'check_same_thread': False, 'auth_token': turso_token},
-                echo=False
-            )
-            conn = engine.connect()
-            print("✅ Connected to Turso database")
-            return conn
-    except Exception as e:
-        # If secrets access fails or doesn't exist, fall through to SQLite
-        print(f"⚠️ Failed to connect to Turso: {e}")
-        print("Falling back to local SQLite")
+def _load_json(filename: str) -> list:
+    """Load data from a JSON file."""
+    filepath = DATA_DIR / filename
+    if not filepath.exists():
+        return []
+    with open(filepath, 'r') as f:
+        return json.load(f)
 
-    # Local development: Use SQLite file
-    db_path = Path(__file__).parent / "dwts.db"
-    database_url = f"sqlite:///{db_path}"
-    engine = create_engine(database_url)
-    print(f"📁 Using local SQLite: {db_path}")
-    return engine.connect()
+
+def _save_json(filename: str, data: list):
+    """Save data to a JSON file."""
+    filepath = DATA_DIR / filename
+    DATA_DIR.mkdir(exist_ok=True)
+    with open(filepath, 'w') as f:
+        json.dump(data, f, indent=2)
+
+
+def _get_next_id(data: list) -> int:
+    """Get the next available ID."""
+    if not data:
+        return 1
+    return max(item['id'] for item in data) + 1
 
 
 def init_db():
-    """Initialize the database with the schema."""
-    conn = get_connection()
+    """Initialize the database with default data if needed."""
+    with _lock:
+        players = _load_json('players.json')
 
-    # Players table (Leo, Abby, Taylor, Turner)
-    conn.execute(text("""
-        CREATE TABLE IF NOT EXISTS players (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL UNIQUE,
-            team_name TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    """))
-    conn.commit()
+        # Add default players if none exist
+        if not players:
+            default_players = [
+                {'id': 1, 'name': 'Leo', 'team_name': '', 'created_at': datetime.now().isoformat()},
+                {'id': 2, 'name': 'Abby', 'team_name': '', 'created_at': datetime.now().isoformat()},
+                {'id': 3, 'name': 'Taylor', 'team_name': '', 'created_at': datetime.now().isoformat()},
+                {'id': 4, 'name': 'Turner', 'team_name': '', 'created_at': datetime.now().isoformat()},
+            ]
+            _save_json('players.json', default_players)
 
-    # DWTS teams (actual contestants on the show)
-    conn.execute(text("""
-        CREATE TABLE IF NOT EXISTS dwts_teams (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            contestant_name TEXT NOT NULL,
-            partner_name TEXT,
-            division TEXT NOT NULL CHECK(division IN ('mens', 'womens')),
-            is_eliminated BOOLEAN DEFAULT 0,
-            elimination_week INTEGER,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    """))
-    conn.commit()
-
-    # Player picks (which DWTS teams each player has picked)
-    conn.execute(text("""
-        CREATE TABLE IF NOT EXISTS player_picks (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            player_id INTEGER NOT NULL,
-            dwts_team_id INTEGER NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (player_id) REFERENCES players(id),
-            FOREIGN KEY (dwts_team_id) REFERENCES dwts_teams(id),
-            UNIQUE(player_id, dwts_team_id)
-        )
-    """))
-    conn.commit()
-
-    # Weekly scores table
-    conn.execute(text("""
-        CREATE TABLE IF NOT EXISTS weekly_scores (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            dwts_team_id INTEGER NOT NULL,
-            week_number INTEGER NOT NULL,
-            judge_name TEXT NOT NULL,
-            score INTEGER NOT NULL CHECK(score >= 0 AND score <= 10),
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (dwts_team_id) REFERENCES dwts_teams(id),
-            UNIQUE(dwts_team_id, week_number, judge_name)
-        )
-    """))
-    conn.commit()
-
-    # Insert default players only if no players exist yet
-    result = conn.execute(text("SELECT COUNT(*) as count FROM players"))
-    player_count = result.fetchone()[0]
-
-    if player_count == 0:
-        # Add initial players
-        default_players = [
-            ('Leo', ''),
-            ('Abby', ''),
-            ('Taylor', ''),
-            ('Turner', '')
-        ]
-
-        for name, team_name in default_players:
-            conn.execute(text("""
-                INSERT INTO players (name, team_name)
-                VALUES (:name, :team_name)
-            """), {"name": name, "team_name": team_name})
-
-    conn.commit()
-    conn.close()
+        # Ensure other files exist
+        for filename in ['dwts_teams.json', 'player_picks.json', 'weekly_scores.json']:
+            if not (DATA_DIR / filename).exists():
+                _save_json(filename, [])
 
 
-def get_all_players():
+def get_all_players() -> List[Dict]:
     """Get all players."""
-    conn = get_connection()
-    result = conn.execute(text("SELECT * FROM players ORDER BY name"))
-    players = [dict(row._mapping) for row in result]
-    conn.close()
-    return players
+    with _lock:
+        return _load_json('players.json')
 
 
-def get_all_dwts_teams():
+def get_all_dwts_teams() -> List[Dict]:
     """Get all DWTS teams."""
-    conn = get_connection()
-    result = conn.execute(text("""
-        SELECT * FROM dwts_teams
-        ORDER BY division, contestant_name
-    """))
-    teams = [dict(row._mapping) for row in result]
-    conn.close()
-    return teams
+    with _lock:
+        return _load_json('dwts_teams.json')
 
 
-def add_dwts_team(contestant_name: str, partner_name: str, division: str):
+def add_dwts_team(contestant_name: str, partner_name: str, division: str) -> int:
     """Add a new DWTS team."""
-    conn = get_connection()
-    result = conn.execute(text("""
-        INSERT INTO dwts_teams (contestant_name, partner_name, division)
-        VALUES (:contestant_name, :partner_name, :division)
-    """), {"contestant_name": contestant_name, "partner_name": partner_name, "division": division})
-    team_id = result.lastrowid
-    conn.commit()
-    conn.close()
-    return team_id
+    with _lock:
+        teams = _load_json('dwts_teams.json')
+        team_id = _get_next_id(teams)
+        new_team = {
+            'id': team_id,
+            'contestant_name': contestant_name,
+            'partner_name': partner_name,
+            'division': division,
+            'is_eliminated': False,
+            'elimination_week': None,
+            'created_at': datetime.now().isoformat()
+        }
+        teams.append(new_team)
+        _save_json('dwts_teams.json', teams)
+        return team_id
 
 
 def update_player_team_name(player_id: int, team_name: str):
     """Update a player's team name."""
-    conn = get_connection()
-    conn.execute(text("""
-        UPDATE players SET team_name = :team_name WHERE id = :player_id
-    """), {"team_name": team_name, "player_id": player_id})
-    conn.commit()
-    conn.close()
+    with _lock:
+        players = _load_json('players.json')
+        for player in players:
+            if player['id'] == player_id:
+                player['team_name'] = team_name
+                break
+        _save_json('players.json', players)
 
 
 def add_player_pick(player_id: int, dwts_team_id: int):
     """Assign a DWTS team to a player."""
-    conn = get_connection()
-    conn.execute(text("""
-        INSERT OR REPLACE INTO player_picks (player_id, dwts_team_id)
-        VALUES (:player_id, :dwts_team_id)
-    """), {"player_id": player_id, "dwts_team_id": dwts_team_id})
-    conn.commit()
-    conn.close()
+    with _lock:
+        picks = _load_json('player_picks.json')
+
+        # Remove existing pick if it exists (INSERT OR REPLACE behavior)
+        picks = [p for p in picks if not (p['player_id'] == player_id and p['dwts_team_id'] == dwts_team_id)]
+
+        pick_id = _get_next_id(picks)
+        new_pick = {
+            'id': pick_id,
+            'player_id': player_id,
+            'dwts_team_id': dwts_team_id,
+            'created_at': datetime.now().isoformat()
+        }
+        picks.append(new_pick)
+        _save_json('player_picks.json', picks)
 
 
-def get_player_picks(player_id: int):
+def get_player_picks(player_id: int) -> List[Dict]:
     """Get all DWTS teams picked by a player."""
-    conn = get_connection()
-    result = conn.execute(text("""
-        SELECT dt.*
-        FROM dwts_teams dt
-        JOIN player_picks pp ON dt.id = pp.dwts_team_id
-        WHERE pp.player_id = :player_id
-    """), {"player_id": player_id})
-    picks = [dict(row._mapping) for row in result]
-    conn.close()
-    return picks
+    with _lock:
+        picks = _load_json('player_picks.json')
+        teams = _load_json('dwts_teams.json')
+
+        # Get team IDs for this player
+        team_ids = [p['dwts_team_id'] for p in picks if p['player_id'] == player_id]
+
+        # Return matching teams
+        return [t for t in teams if t['id'] in team_ids]
 
 
 def add_weekly_score(dwts_team_id: int, week_number: int, judge_name: str, score: int):
     """Add or update a weekly score."""
-    conn = get_connection()
-    conn.execute(text("""
-        INSERT OR REPLACE INTO weekly_scores
-        (dwts_team_id, week_number, judge_name, score)
-        VALUES (:dwts_team_id, :week_number, :judge_name, :score)
-    """), {"dwts_team_id": dwts_team_id, "week_number": week_number, "judge_name": judge_name, "score": score})
-    conn.commit()
-    conn.close()
+    with _lock:
+        scores = _load_json('weekly_scores.json')
+
+        # Remove existing score for this team/week/judge (INSERT OR REPLACE)
+        scores = [s for s in scores if not (
+            s['dwts_team_id'] == dwts_team_id and
+            s['week_number'] == week_number and
+            s['judge_name'] == judge_name
+        )]
+
+        score_id = _get_next_id(scores)
+        new_score = {
+            'id': score_id,
+            'dwts_team_id': dwts_team_id,
+            'week_number': week_number,
+            'judge_name': judge_name,
+            'score': score,
+            'created_at': datetime.now().isoformat()
+        }
+        scores.append(new_score)
+        _save_json('weekly_scores.json', scores)
 
 
 def get_team_total_score(dwts_team_id: int) -> int:
     """Get the total score for a DWTS team across all weeks."""
-    conn = get_connection()
-    result = conn.execute(text("""
-        SELECT COALESCE(SUM(score), 0) as total
-        FROM weekly_scores
-        WHERE dwts_team_id = :dwts_team_id
-    """), {"dwts_team_id": dwts_team_id})
-    total = result.fetchone()[0]
-    conn.close()
-    return total
+    with _lock:
+        scores = _load_json('weekly_scores.json')
+        team_scores = [s['score'] for s in scores if s['dwts_team_id'] == dwts_team_id]
+        return sum(team_scores)
 
 
 def get_player_total_score(player_id: int) -> int:
     """Get the total score for a player (sum of their picked teams' scores)."""
-    conn = get_connection()
-    result = conn.execute(text("""
-        SELECT COALESCE(SUM(ws.score), 0) as total
-        FROM weekly_scores ws
-        JOIN player_picks pp ON ws.dwts_team_id = pp.dwts_team_id
-        WHERE pp.player_id = :player_id
-    """), {"player_id": player_id})
-    total = result.fetchone()[0]
-    conn.close()
-    return total
+    with _lock:
+        picks = _load_json('player_picks.json')
+        scores = _load_json('weekly_scores.json')
+
+        # Get team IDs for this player
+        team_ids = [p['dwts_team_id'] for p in picks if p['player_id'] == player_id]
+
+        # Sum scores for those teams
+        total = sum(s['score'] for s in scores if s['dwts_team_id'] in team_ids)
+        return total
 
 
 def eliminate_team(dwts_team_id: int, week_number: int):
     """Mark a DWTS team as eliminated."""
-    conn = get_connection()
-    conn.execute(text("""
-        UPDATE dwts_teams
-        SET is_eliminated = 1, elimination_week = :week_number
-        WHERE id = :dwts_team_id
-    """), {"week_number": week_number, "dwts_team_id": dwts_team_id})
-    conn.commit()
-    conn.close()
+    with _lock:
+        teams = _load_json('dwts_teams.json')
+        for team in teams:
+            if team['id'] == dwts_team_id:
+                team['is_eliminated'] = True
+                team['elimination_week'] = week_number
+                break
+        _save_json('dwts_teams.json', teams)
 
 
 def is_player_eliminated(player_id: int) -> bool:
     """Check if a player is eliminated (all their picks are eliminated)."""
-    conn = get_connection()
+    with _lock:
+        picks = _load_json('player_picks.json')
+        teams = _load_json('dwts_teams.json')
 
-    # First check if player has any picks at all
-    result = conn.execute(text("""
-        SELECT COUNT(*) as total_picks
-        FROM player_picks
-        WHERE player_id = :player_id
-    """), {"player_id": player_id})
-    total = result.fetchone()[0]
+        # Get team IDs for this player
+        team_ids = [p['dwts_team_id'] for p in picks if p['player_id'] == player_id]
 
-    # If no picks, player is not eliminated (just hasn't picked yet)
-    if total == 0:
-        conn.close()
-        return False
+        # If no picks, not eliminated
+        if not team_ids:
+            return False
 
-    # Check if all picks are eliminated
-    result = conn.execute(text("""
-        SELECT COUNT(*) as active_count
-        FROM dwts_teams dt
-        JOIN player_picks pp ON dt.id = pp.dwts_team_id
-        WHERE pp.player_id = :player_id AND dt.is_eliminated = 0
-    """), {"player_id": player_id})
-    active_count = result.fetchone()[0]
-    conn.close()
-    return active_count == 0
+        # Check if any teams are still active
+        active_teams = [t for t in teams if t['id'] in team_ids and not t['is_eliminated']]
+        return len(active_teams) == 0
 
 
-def get_leaderboard():
+def get_leaderboard() -> List[Dict]:
     """Get the leaderboard with player rankings."""
-    conn = get_connection()
-    result = conn.execute(text("""
-        SELECT
-            p.id,
-            p.name,
-            p.team_name,
-            COALESCE(SUM(ws.score), 0) as total_score,
-            COUNT(DISTINCT pp.dwts_team_id) as total_picks,
-            COUNT(DISTINCT CASE WHEN dt.is_eliminated = 1 THEN dt.id END) as eliminated_picks
-        FROM players p
-        LEFT JOIN player_picks pp ON p.id = pp.player_id
-        LEFT JOIN dwts_teams dt ON pp.dwts_team_id = dt.id
-        LEFT JOIN weekly_scores ws ON dt.id = ws.dwts_team_id
-        GROUP BY p.id, p.name, p.team_name
-        ORDER BY total_score DESC
-    """))
-    leaderboard = [dict(row._mapping) for row in result]
-    conn.close()
-    return leaderboard
+    with _lock:
+        players = _load_json('players.json')
+        picks = _load_json('player_picks.json')
+        teams = _load_json('dwts_teams.json')
+        scores = _load_json('weekly_scores.json')
+
+        leaderboard = []
+        for player in players:
+            player_id = player['id']
+
+            # Get picks for this player
+            player_picks = [p for p in picks if p['player_id'] == player_id]
+            team_ids = [p['dwts_team_id'] for p in player_picks]
+
+            # Get teams for this player
+            player_teams = [t for t in teams if t['id'] in team_ids]
+
+            # Calculate total score
+            total_score = sum(s['score'] for s in scores if s['dwts_team_id'] in team_ids)
+
+            # Count eliminated picks
+            eliminated_picks = sum(1 for t in player_teams if t['is_eliminated'])
+
+            leaderboard.append({
+                'id': player_id,
+                'name': player['name'],
+                'team_name': player['team_name'],
+                'total_score': total_score,
+                'total_picks': len(player_picks),
+                'eliminated_picks': eliminated_picks
+            })
+
+        # Sort by score descending
+        leaderboard.sort(key=lambda x: x['total_score'], reverse=True)
+        return leaderboard
 
 
-def get_weekly_scores_for_team(dwts_team_id: int, week_number: int):
+def get_weekly_scores_for_team(dwts_team_id: int, week_number: int) -> List[Dict]:
     """Get all scores for a team in a specific week."""
-    conn = get_connection()
-    result = conn.execute(text("""
-        SELECT judge_name, score
-        FROM weekly_scores
-        WHERE dwts_team_id = :dwts_team_id AND week_number = :week_number
-        ORDER BY judge_name
-    """), {"dwts_team_id": dwts_team_id, "week_number": week_number})
-    scores = [dict(row._mapping) for row in result]
-    conn.close()
-    return scores
+    with _lock:
+        scores = _load_json('weekly_scores.json')
+        team_scores = [
+            {'judge_name': s['judge_name'], 'score': s['score']}
+            for s in scores
+            if s['dwts_team_id'] == dwts_team_id and s['week_number'] == week_number
+        ]
+        team_scores.sort(key=lambda x: x['judge_name'])
+        return team_scores
 
 
 def get_latest_week() -> int:
     """Get the latest week number that has scores."""
-    conn = get_connection()
-    result = conn.execute(text("SELECT COALESCE(MAX(week_number), 0) as max_week FROM weekly_scores"))
-    max_week = result.fetchone()[0]
-    conn.close()
-    return max_week
+    with _lock:
+        scores = _load_json('weekly_scores.json')
+        if not scores:
+            return 0
+        return max(s['week_number'] for s in scores)
 
 
-def add_player(name: str, team_name: str = ""):
+def add_player(name: str, team_name: str = "") -> int:
     """Add a new player."""
-    conn = get_connection()
-    result = conn.execute(text("""
-        INSERT INTO players (name, team_name)
-        VALUES (:name, :team_name)
-    """), {"name": name, "team_name": team_name})
-    player_id = result.lastrowid
-    conn.commit()
-    conn.close()
-    return player_id
+    with _lock:
+        players = _load_json('players.json')
+        player_id = _get_next_id(players)
+        new_player = {
+            'id': player_id,
+            'name': name,
+            'team_name': team_name,
+            'created_at': datetime.now().isoformat()
+        }
+        players.append(new_player)
+        _save_json('players.json', players)
+        return player_id
 
 
 def delete_player(player_id: int):
     """Delete a player and all their picks."""
-    conn = get_connection()
-    # Delete player picks first (foreign key constraint)
-    conn.execute(text("""
-        DELETE FROM player_picks WHERE player_id = :player_id
-    """), {"player_id": player_id})
-    # Delete the player
-    conn.execute(text("""
-        DELETE FROM players WHERE id = :player_id
-    """), {"player_id": player_id})
-    conn.commit()
-    conn.close()
+    with _lock:
+        # Delete player picks
+        picks = _load_json('player_picks.json')
+        picks = [p for p in picks if p['player_id'] != player_id]
+        _save_json('player_picks.json', picks)
+
+        # Delete player
+        players = _load_json('players.json')
+        players = [p for p in players if p['id'] != player_id]
+        _save_json('players.json', players)

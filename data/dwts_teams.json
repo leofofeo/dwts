@@ -1,0 +1,128 @@
+[
+  {
+    "id": 1,
+    "contestant_name": "Tatyana Ali",
+    "partner_name": "Jan Ravnik",
+    "division": "womens",
+    "is_eliminated": false,
+    "elimination_week": null,
+    "created_at": "2026-09-20 17:12:19"
+  },
+  {
+    "id": 2,
+    "contestant_name": "Giada De Laurentiis",
+    "partner_name": "Alan Bersten",
+    "division": "womens",
+    "is_eliminated": false,
+    "elimination_week": null,
+    "created_at": "2026-09-20 17:12:47"
+  },
+  {
+    "id": 3,
+    "contestant_name": "Jenna Dewan",
+    "partner_name": "Val Chmerkovskiy",
+    "division": "womens",
+    "is_eliminated": false,
+    "elimination_week": null,
+    "created_at": "2026-09-20 17:13:01"
+  },
+  {
+    "id": 4,
+    "contestant_name": "Amber Glenn",
+    "partner_name": "Pasha Pashkov",
+    "division": "womens",
+    "is_eliminated": false,
+    "elimination_week": null,
+    "created_at": "2026-09-20 17:13:45"
+  },
+  {
+    "id": 5,
+    "contestant_name": "Maura Higgins",
+    "partner_name": "Mark Ballas",
+    "division": "womens",
+    "is_eliminated": false,
+    "elimination_week": null,
+    "created_at": "2026-09-20 17:14:22"
+  },
+  {
+    "id": 6,
+    "contestant_name": "Ciara Miller",
+    "partner_name": "Brandon Armstrong",
+    "division": "womens",
+    "is_eliminated": false,
+    "elimination_week": null,
+    "created_at": "2026-09-20 17:14:38"
+  },
+  {
+    "id": 7,
+    "contestant_name": "Julia Stiles",
+    "partner_name": "Ezra Sosa",
+    "division": "womens",
+    "is_eliminated": false,
+    "elimination_week": null,
+    "created_at": "2026-09-20 17:14:51"
+  },
+  {
+    "id": 8,
+    "contestant_name": "Tyler Cameron",
+    "partner_name": "Sharna Burgess",
+    "division": "mens",
+    "is_eliminated": false,
+    "elimination_week": null,
+    "created_at": "2026-09-20 17:16:07"
+  },
+  {
+    "id": 9,
+    "contestant_name": "Ezra Frech",
+    "partner_name": "Daniella Karagach",
+    "division": "mens",
+    "is_eliminated": false,
+    "elimination_week": null,
+    "created_at": "2026-09-20 17:16:16"
+  },
+  {
+    "id": 10,
+    "contestant_name": "Taylor Hanson",
+    "partner_name": "Britt Stewart",
+    "division": "mens",
+    "is_eliminated": false,
+    "elimination_week": null,
+    "created_at": "2026-09-20 17:16:27"
+  },
+  {
+    "id": 11,
+    "contestant_name": "Jackson Olson",
+    "partner_name": "Emma Slater",
+    "division": "mens",
+    "is_eliminated": false,
+    "elimination_week": null,
+    "created_at": "2026-09-20 17:16:35"
+  },
+  {
+    "id": 12,
+    "contestant_name": "Guillermo Rodriguez",
+    "partner_name": "Witney Carson",
+    "division": "mens",
+    "is_eliminated": false,
+    "elimination_week": null,
+    "created_at": "2026-09-20 17:16:47"
+  },
+  {
+    "id": 13,
+    "contestant_name": "Connor Wood",
+    "partner_name": "Rylee Arnold",
+    "division": "mens",
+    "is_eliminated": false,
+    "elimination_week": null,
+    "created_at": "2026-09-20 17:17:04"
+  },
+  {
+    "id": 14,
+    "contestant_name": "Harry Shum Jr",
+    "partner_name": "Jenna Johnson",
+    "division": "mens",
+    "is_eliminated": false,
+    "elimination_week": null,
+    "created_at": "2026-09-20 17:17:50"
+  }
+]
