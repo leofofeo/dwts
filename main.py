@@ -14,7 +14,7 @@ st.title("💃 Dancing With The Stars - Friends Competition")
 
 # Sidebar for navigation
 st.sidebar.title("Navigation")
-page = st.sidebar.radio("Go to", ["Leaderboard", "Team Details", "Admin", "Scoring"])
+page = st.sidebar.radio("Go to", ["Leaderboard", "Team Details", "Admin", "Scoring", "Data Export"])
 
 if page == "Leaderboard":
     st.header("Current Standings")
@@ -169,3 +169,7 @@ elif page == "Scoring":
         # Import here to avoid running code before auth
         from pages import scoring_page
         scoring_page.render()
+
+elif page == "Data Export":
+    from pages import data_export_page
+    data_export_page.render()

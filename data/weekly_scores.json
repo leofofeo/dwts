@@ -120,30 +120,6 @@
     "created_at": "2026-09-22T19:56:18.013490"
   },
   {
-    "id": 19,
-    "dwts_team_id": 8,
-    "week_number": 2,
-    "judge_name": "Carrie-Ann",
-    "score": 6,
-    "created_at": "2026-09-22T19:56:33.955780"
-  },
-  {
-    "id": 20,
-    "dwts_team_id": 8,
-    "week_number": 2,
-    "judge_name": "Derek",
-    "score": 6,
-    "created_at": "2026-09-22T19:56:33.956845"
-  },
-  {
-    "id": 21,
-    "dwts_team_id": 8,
-    "week_number": 2,
-    "judge_name": "Bruno",
-    "score": 6,
-    "created_at": "2026-09-22T19:56:33.957467"
-  },
-  {
     "id": 22,
     "dwts_team_id": 7,
     "week_number": 2,
@@ -166,5 +142,197 @@
     "judge_name": "Bruno",
     "score": 5,
     "created_at": "2026-09-22T19:56:48.227453"
+  },
+  {
+    "id": 25,
+    "dwts_team_id": 4,
+    "week_number": 2,
+    "judge_name": "Carrie-Ann",
+    "score": 7,
+    "created_at": "2026-09-22T20:47:56.544209"
+  },
+  {
+    "id": 26,
+    "dwts_team_id": 4,
+    "week_number": 2,
+    "judge_name": "Derek",
+    "score": 7,
+    "created_at": "2026-09-22T20:47:56.545027"
+  },
+  {
+    "id": 27,
+    "dwts_team_id": 4,
+    "week_number": 2,
+    "judge_name": "Bruno",
+    "score": 7,
+    "created_at": "2026-09-22T20:47:56.545552"
+  },
+  {
+    "id": 28,
+    "dwts_team_id": 14,
+    "week_number": 2,
+    "judge_name": "Carrie-Ann",
+    "score": 6,
+    "created_at": "2026-09-22T20:48:06.575522"
+  },
+  {
+    "id": 29,
+    "dwts_team_id": 14,
+    "week_number": 2,
+    "judge_name": "Derek",
+    "score": 6,
+    "created_at": "2026-09-22T20:48:06.575946"
+  },
+  {
+    "id": 30,
+    "dwts_team_id": 14,
+    "week_number": 2,
+    "judge_name": "Bruno",
+    "score": 6,
+    "created_at": "2026-09-22T20:48:06.576365"
+  },
+  {
+    "id": 31,
+    "dwts_team_id": 8,
+    "week_number": 2,
+    "judge_name": "Carrie-Ann",
+    "score": 6,
+    "created_at": "2026-09-22T20:48:35.687241"
+  },
+  {
+    "id": 32,
+    "dwts_team_id": 8,
+    "week_number": 2,
+    "judge_name": "Derek",
+    "score": 5,
+    "created_at": "2026-09-22T20:48:35.687855"
+  },
+  {
+    "id": 33,
+    "dwts_team_id": 8,
+    "week_number": 2,
+    "judge_name": "Bruno",
+    "score": 5,
+    "created_at": "2026-09-22T20:48:35.688198"
+  },
+  {
+    "id": 34,
+    "dwts_team_id": 9,
+    "week_number": 2,
+    "judge_name": "Carrie-Ann",
+    "score": 7,
+    "created_at": "2026-09-22T20:49:34.995341"
+  },
+  {
+    "id": 35,
+    "dwts_team_id": 9,
+    "week_number": 2,
+    "judge_name": "Derek",
+    "score": 7,
+    "created_at": "2026-09-22T20:49:34.996034"
+  },
+  {
+    "id": 36,
+    "dwts_team_id": 9,
+    "week_number": 2,
+    "judge_name": "Bruno",
+    "score": 7,
+    "created_at": "2026-09-22T20:49:34.996655"
+  },
+  {
+    "id": 37,
+    "dwts_team_id": 1,
+    "week_number": 2,
+    "judge_name": "Carrie-Ann",
+    "score": 6,
+    "created_at": "2026-09-22T20:49:54.190464"
+  },
+  {
+    "id": 38,
+    "dwts_team_id": 1,
+    "week_number": 2,
+    "judge_name": "Derek",
+    "score": 6,
+    "created_at": "2026-09-22T20:49:54.190874"
+  },
+  {
+    "id": 39,
+    "dwts_team_id": 1,
+    "week_number": 2,
+    "judge_name": "Bruno",
+    "score": 6,
+    "created_at": "2026-09-22T20:49:54.191161"
+  },
+  {
+    "id": 40,
+    "dwts_team_id": 12,
+    "week_number": 2,
+    "judge_name": "Carrie-Ann",
+    "score": 4,
+    "created_at": "2026-09-22T20:50:49.770375"
+  },
+  {
+    "id": 41,
+    "dwts_team_id": 12,
+    "week_number": 2,
+    "judge_name": "Derek",
+    "score": 4,
+    "created_at": "2026-09-22T20:50:49.771002"
+  },
+  {
+    "id": 42,
+    "dwts_team_id": 12,
+    "week_number": 2,
+    "judge_name": "Bruno",
+    "score": 4,
+    "created_at": "2026-09-22T20:50:49.773277"
+  },
+  {
+    "id": 43,
+    "dwts_team_id": 10,
+    "week_number": 2,
+    "judge_name": "Carrie-Ann",
+    "score": 5,
+    "created_at": "2026-09-22T20:51:11.831805"
+  },
+  {
+    "id": 44,
+    "dwts_team_id": 10,
+    "week_number": 2,
+    "judge_name": "Derek",
+    "score": 5,
+    "created_at": "2026-09-22T20:51:11.832768"
+  },
+  {
+    "id": 45,
+    "dwts_team_id": 10,
+    "week_number": 2,
+    "judge_name": "Bruno",
+    "score": 5,
+    "created_at": "2026-09-22T20:51:11.833246"
+  },
+  {
+    "id": 49,
+    "dwts_team_id": 5,
+    "week_number": 2,
+    "judge_name": "Carrie-Ann",
+    "score": 6,
+    "created_at": "2026-09-22T20:53:26.057741"
+  },
+  {
+    "id": 50,
+    "dwts_team_id": 5,
+    "week_number": 2,
+    "judge_name": "Derek",
+    "score": 6,
+    "created_at": "2026-09-22T20:53:26.058411"
+  },
+  {
+    "id": 51,
+    "dwts_team_id": 5,
+    "week_number": 2,
+    "judge_name": "Bruno",
+    "score": 7,
+    "created_at": "2026-09-22T20:53:26.058684"
   }
 ]
